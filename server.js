@@ -3,37 +3,48 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
-const jwksClient = require('jwks-rsa');
-
-const client = jwksClient({
-  jwksUri: 'https://dev-o879tgum.us.auth0.com/.well-known/jwks.json',
-});
-
+// const jwt = require('jsonwebtoken');
+// const jwksClient = require('jwks-rsa');
+const mongoose = require('mongoose');
 const app = express();
 app.use(cors());
+app.use(express.json());
 
-function getKey(header, callback) {
-  client.getSigningKey(header.kid, function (err, key) {
-    const signingKey = key.publicKey || key.rsaPublicKey;
-    callback(null, signingKey);
-  });
-}
+// CRUD actions imported here
+const Book = require('./modules/books.js');
+const BookModel = require('./models/Users.js');
+const { response } = require('express');
 
 const PORT = process.env.PORT || 3001;
 
-app.get('/books', (request, response) => {
-  // STEP 1: get the jwt from the headers
-  const token = request.headers.authorization.split(' ')[1];
-  // STEP 2. use the jsonwebtoken library to verify that it is a valid jwt
-  // jsonwebtoken dock - https://www.npmjs.com/package/jsonwebtoken
-  jwt.verify(token, getKey, {}, (err, user) => {
-    if (err) {
-      // STEP 3: to prove that everything is working correctly, send the opened jwt back to the front-end
-      response.send('whoops...jtw.verify issue');
-    }
-    response.send(user);
-  });
+// DataBase initial connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
+// Variable to refer to database connection
+const db = mongoose.connection;
+
+// Constantly checking for errors on database
+db.on('error', (error) => console.error(error))
+
+// When database initializes:
+db.once('open', () => {
+  app.listen(PORT, () => console.log(`Server up, listening on ${PORT}`));
+  console.log('Connected to Database');
+
+  // BookModel.find({})
+  //   .then(results => {
+  //     console.log(results);
+  //     if (results.length === 0) {
+  //       const FirstBook = new BookModel({ name: 'Default', title: 'First Book', author: 'Author' });
+  //       FirstBook.save();
+  //     }
+  //   })
+});
+
+// Routes
+app.get('/books', Book.getAllBooks);
+app.post('/books', Book.addABook);
+app.delete('/books/:index', Book.deleteABook);
