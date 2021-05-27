@@ -13,7 +13,6 @@ app.use(express.json());
 // CRUD actions imported here
 const Book = require('./modules/books.js');
 const BookModel = require('./models/Users.js');
-const { response } = require('express');
 
 const PORT = process.env.PORT || 3001;
 
@@ -33,15 +32,6 @@ db.on('error', (error) => console.error(error))
 db.once('open', () => {
   app.listen(PORT, () => console.log(`Server up, listening on ${PORT}`));
   console.log('Connected to Database');
-
-  // BookModel.find({})
-  //   .then(results => {
-  //     console.log(results);
-  //     if (results.length === 0) {
-  //       const FirstBook = new BookModel({ name: 'Default', title: 'First Book', author: 'Author' });
-  //       FirstBook.save();
-  //     }
-  //   })
 });
 
 // Routes

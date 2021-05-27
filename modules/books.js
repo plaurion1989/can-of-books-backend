@@ -55,16 +55,19 @@ Book.deleteABook = async function (request, response) {
   verifyToken(token, deleteBook);
 
   // Callback function
-  // async function deleteBook
-  const index = Number(request.params.index);
-  const name = request.query.name;
-  await BookModel.find({ name }, (err, person) => {
-    if (err) console.error(err);
-    const newBookArray = person[0].books.filter((book, i) => i !== index);
-    person[0].books = newBookArray;
-    person[0].save();
-    response.send('Successfully deleted!');
-  });
+  async function deleteBook(user) {
+    const indexString = request.params.index;
+    const index = parseInt(indexString);
+    console.log(index);
+    const name = user.name;
+    await BookModel.find({ name }, (err, person) => {
+      if (err) console.error(err);
+      const newBookArray = person[0].books.filter((book, i) => i !== index);
+      person[0].books = newBookArray;
+      person[0].save();
+      response.send('Successfully deleted!');
+    });
+  }
 }
 
 module.exports = Book;
