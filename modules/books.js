@@ -22,6 +22,12 @@ Book.getAllBooks = async function (request, response) {
         const newBookModel = new BookModel(person[0])
         newBookModel.save();
       }
+      if (!person[0].books.length) {
+        person[0].books.push({ title: 'Book1', author: 'Author1' });
+        person[0].books.push({ title: 'Book2', author: 'Author2' });
+        person[0].books.push({ title: 'Book3', author: 'Author3' });
+        person[0].save();
+      }
       response.send(person[0].books);
     });
   }
@@ -56,17 +62,36 @@ Book.deleteABook = async function (request, response) {
 
   // Callback function
   async function deleteBook(user) {
-    const indexString = request.params.index;
-    const index = parseInt(indexString);
-    console.log(index);
+    const index = parseInt(request.params.index);
     const name = user.name;
     await BookModel.find({ name }, (err, person) => {
       if (err) console.error(err);
       const newBookArray = person[0].books.filter((book, i) => i !== index);
       person[0].books = newBookArray;
       person[0].save();
-      response.send('Successfully deleted!');
+      response.send(person[0].books);
     });
+  }
+}
+
+Book.updateABook = async function (request, response) {
+
+  // Authentication step
+  const token = request.headers.authorization.split(' ')[1];
+  verifyToken(token, updateBook);
+
+  // Callback function
+  async function updateBook(user) {
+    console.log(request.params, request.query)
+    const index = parseInt(request.params.index);
+    const newBook = { title: request.query.newTitle, author: request.query.newAuthor };
+    const name = user.name;
+    await BookModel.find({ name }, (err, person) => {
+      if (err) console.log(err);
+      person[0].books.splice(index, 1, newBook);
+      person[0].save();
+      response.send(person[0].books);
+    })
   }
 }
 

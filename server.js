@@ -3,8 +3,6 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-// const jwt = require('jsonwebtoken');
-// const jwksClient = require('jwks-rsa');
 const mongoose = require('mongoose');
 const app = express();
 app.use(cors());
@@ -12,7 +10,7 @@ app.use(express.json());
 
 // CRUD actions imported here
 const Book = require('./modules/books.js');
-const BookModel = require('./models/Users.js');
+const BookModel = require('./models/Users.js')
 
 const PORT = process.env.PORT || 3001;
 
@@ -38,3 +36,4 @@ db.once('open', () => {
 app.get('/books', Book.getAllBooks);
 app.post('/books', Book.addABook);
 app.delete('/books/:index', Book.deleteABook);
+app.put('/books/:index', Book.updateABook);
